@@ -1,0 +1,468 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdmissionQuota {
+  quota_id   String  @id @default(uuid())
+  course_id  String?
+  category   String? @db.VarChar(255)
+  percentage Float?
+  Course     Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model ApprovalBody {
+  approval_body_id String     @id @default(uuid())
+  institute_id     String?
+  name             String     @db.VarChar(255)
+  contact_email    String?    @db.VarChar(255)
+  contact_phone    String?    @db.VarChar(255)
+  Institute        Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Company {
+  company_id    String      @id @default(uuid())
+  company_name  String      @db.VarChar(255)
+  industry      String?     @db.VarChar(255)
+  location      String?     @db.VarChar(255)
+  contact_email String?     @unique @db.VarChar(255)
+  contact_phone String?     @db.VarChar(255)
+  Placement     Placement[]
+}
+
+model Course {
+  course_id      String           @id @default(uuid())
+  institute_id   String?
+  program_id     String?
+  name           String           @db.VarChar(255)
+  description    String?
+  duration       String?          @db.VarChar(255)
+  level          String?          @db.VarChar(255)
+  mode           String?          @db.VarChar(255)
+  specialization String?          @db.VarChar(255)
+  eligibility    String?
+  created_at     DateTime?        @default(now())
+  department_id  String
+  AdmissionQuota AdmissionQuota[]
+  Department     Department      @relation(fields: [department_id], references: [department_id])
+  Institute      Institute?       @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  Cutoff         Cutoff[]
+  Faculty        Faculty[]
+  FacultyCourse  FacultyCourse[]
+  Fee            Fee[]
+  Placement      Placement[]
+  Student        Student[]
+}
+
+model Cutoff {
+  cutoff_id    String  @id @default(uuid())
+  course_id    String?
+  exam_name    String? @db.VarChar(255)
+  category     String? @db.VarChar(255)
+  opening_rank Int?
+  closing_rank Int?
+  exam_year    Int?
+  Course       Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model Department {
+  department_id String     @id @default(uuid())
+  institute_id  String?
+  name          String     @db.VarChar(255)
+  head          String?    @db.VarChar(255)
+  description   String?
+  created_at    DateTime   @default(now())
+  Course        Course[]
+  Institute     Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  Faculty       Faculty[]
+}
+
+model Faculty {
+  faculty_id           String                 @id @default(uuid())
+  institute_id         String?
+  course_id            String?
+  name                 String                 @db.VarChar(255)
+  designation          String?                @db.VarChar(255)
+  subject_expertise    String?                @db.VarChar(255)
+  rating               Float?
+  tenure_start         DateTime?
+  tenure_end           DateTime?
+  employment_type      String?                @db.VarChar(255)
+  department_id        String
+  Course               Course?                @relation(fields: [course_id], references: [course_id])
+  Department           Department             @relation(fields: [department_id], references: [department_id])
+  Institute            Institute?             @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  FacultyCourse        FacultyCourse[]
+  FacultyPublication   FacultyPublication[]
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model FacultyPublication {
+  publication_id String   @id @default(uuid())
+  faculty_id     String?
+  title          String   @db.VarChar(255)
+  journal        String?  @db.VarChar(255)
+  year           Int?
+  doi            String?  @db.VarChar(255)
+  Faculty        Faculty? @relation(fields: [faculty_id], references: [faculty_id])
+}
+
+model FacultyUser {
+  faculty_user_id String     @id
+  user_id         String?
+  institute_id    String?
+  start_year      Int?
+  end_year        Int?
+  Institute       Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  User            User?      @relation(fields: [user_id], references: [id])
+}
+
+model Fee {
+  fee_id    String  @id @default(uuid())
+  course_id String?
+  min_fee   Float?
+  max_fee   Float?
+  fee_year  Int?
+  component String? @db.VarChar(255)
+  amount    Float?
+  currency  String? @db.VarChar(10)
+  Course    Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model Infrastructure {
+  infrastructure_id String     @id @default(uuid())
+  institute_id      String?
+  facility          String?    @db.VarChar(255)
+  hostel_type       String?    @db.VarChar(255)
+  hostel_details    String?
+  library_details   String?
+  facility_rating   Float?
+  total_reviews     Int?
+  timings           String?    @db.VarChar(255)
+  Institute         Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Institute {
+  institute_id         String                 @id @default(uuid())
+  institute_name       String                 @db.VarChar(255)
+  about                String?
+  address              String?                @db.VarChar(255)
+  city                 String?                @db.VarChar(255)
+  state                String?                @db.VarChar(255)
+  pincode              String?                @db.VarChar(20)
+  latitude             Float?
+  longitude            Float?
+  establishment_year   Int?
+  institute_type       String?                @db.VarChar(255)
+  campus_size          String?                @db.VarChar(255)
+  student_intake       Int?
+  affiliation          String?                @db.VarChar(255)
+  last_updated_on      DateTime?
+  last_updated_from    String?                @db.VarChar(255)
+  contact_email        String?                @db.VarChar(255)
+  contact_phone        String?                @db.VarChar(255)
+  website              String?                @db.VarChar(255)
+  accreditation        String?                @db.VarChar(255)
+  institution_type     String?                @db.VarChar(255)
+  url                  String?                @db.VarChar(255)
+  verification_status  String?                @db.VarChar(50)
+  system_status        String?                @db.VarChar(50)
+  ApprovalBody         ApprovalBody[]
+  Course               Course[]
+  Department           Department[]
+  Faculty              Faculty[]
+  FacultyUser          FacultyUser[]
+  Infrastructure       Infrastructure[]
+  Location             Location[]
+  Placement            Placement[]
+  Program              Program[]
+  Ranking              Ranking[]
+  Review               Review[]
+  Scholarship          Scholarship[]
+  Student              Student[]
+  StudentClub          StudentClub[]
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model Location {
+  location_id  String     @id @default(uuid())
+  institute_id String?
+  address      String?    @db.VarChar(255)
+  city         String?    @db.VarChar(255)
+  state        String?    @db.VarChar(255)
+  pincode      String?    @db.VarChar(20)
+  latitude     Float?
+  longitude    Float?
+  affiliation  String?    @db.VarChar(255)
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Placement {
+  placement_id                 String                         @id @default(uuid())
+  institute_id                 String
+  company_id                   String?
+  top_recruiters               String?                        @db.VarChar(255)
+  year                         Int?
+  course_id                    String?
+  placement_rate               Float?
+  offer_status                 String?                        @db.VarChar(255)
+  Company                      Company?                       @relation(fields: [company_id], references: [company_id])
+  Course                       Course?                        @relation(fields: [course_id], references: [course_id])
+  Institute                    Institute                      @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  PlacementSpecializationStats PlacementSpecializationStats[]
+}
+
+model PlacementSpecializationStats {
+  stat_id         String     @id @default(uuid())
+  placement_id    String?
+  specialization  String?    @db.VarChar(255)
+  average_package Float?
+  median_package  Float?
+  highest_package Float?
+  Placement       Placement? @relation(fields: [placement_id], references: [placement_id])
+}
+
+model Ranking {
+  ranking_id     String     @id @default(uuid())
+  institute_id   String?
+  ranking_body   String?    @db.VarChar(255)
+  ranking_year   Int?
+  institute_rank Int?
+  category       String?    @db.VarChar(255)
+  country        String?    @db.VarChar(255)
+  Institute      Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Review {
+  review_id                String     @id @default(uuid())
+  institute_id             String?
+  verified_reviews         Int?
+  placements_rating        Float?
+  infrastructure_rating    Float?
+  faculty_rating           Float?
+  course_curriculum_rating Float?
+  campus_life_rating       Float?
+  value_for_money_rating   Float?
+  review_text              String?
+  reviewer_name            String?    @db.VarChar(255)
+  reviewer_email           String?    @db.VarChar(255)
+  review_date              DateTime?
+  Institute                Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Scholarship {
+  scholarship_id      String     @id @default(uuid())
+  institute_id        String?
+  name                String     @db.VarChar(255)
+  eligibility         String?
+  amount              Float?
+  deadline            DateTime?
+  application_process String?
+  required_documents  String?
+  Institute           Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model Student {
+  student_id           String                 @id @default(uuid())
+  user_id              String?
+  institute_id         String?
+  course_id            String?
+  enrollment_year      Int?
+  graduation_year      Int?
+  Course               Course?                @relation(fields: [course_id], references: [course_id])
+  Institute            Institute?             @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  User                 User?                  @relation(fields: [user_id], references: [id])
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model StudentClub {
+  club_id         String    @id @default(uuid())
+  institute_id    String
+  student_id      String?
+  name            String    @db.VarChar(255)
+  description     String?
+  faculty_advisor String?   @db.VarChar(255)
+  members_count   Int?
+  Institute       Institute @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model StudentFacultyRating {
+  rating_id    String     @id @default(uuid())
+  student_id   String?
+  faculty_id   String?
+  institute_id String?
+  rating       Float?
+  rating_date  DateTime?
+  Faculty      Faculty?   @relation(fields: [faculty_id], references: [faculty_id])
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+  Student      Student?   @relation(fields: [student_id], references: [student_id])
+}
+
+model User {
+  id             String           @id @default(cuid())
+  name           String?
+  image          String?
+  username       String?          @unique @db.VarChar(255)
+  email          String           @unique @db.VarChar(255)
+  emailVerified  DateTime?
+  role           Role             @default(USER) // for RBAC
+  accounts       Account[]
+  sessions       Session[]
+  user_type      String?          @db.VarChar(50)
+  status         String?          @db.VarChar(255)
+  created_at     DateTime         @default(now())
+  AdminUser      AdminUser[]
+  EditorUser     EditorUser[]
+  FacultyUser    FacultyUser[]
+  RegisteredUser RegisteredUser[]
+  Student        Student[]
+  SuperAdminUser SuperAdminUser[]
+  UserPermission UserPermission[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  BATMAN // Super Admin
+  FLASH // Admin
+  EDITOR // Editor
+  USER // Regular User
+}
+
+model AdminUser {
+  admin_user_id    String   @id
+  user_id          String
+  admin_level      String?  @db.VarChar(50)
+  responsibilities String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now())
+  User             User     @relation(fields: [user_id], references: [id])
+}
+
+model AuditLog {
+  audit_id       String         @id
+  entity_type    String?        @db.VarChar(50)
+  entity_id      String
+  action         String?        @db.VarChar(50)
+  changes        Json?
+  performed_by   String
+  timestamp      DateTime       @default(now())
+  SuperAdminUser SuperAdminUser @relation(fields: [performed_by], references: [super_admin_user_id], onDelete: Cascade)
+}
+
+model EditorUser {
+  editor_user_id String  @id
+  user_id        String
+  content_area   String?
+  access_level   String?
+  User           User    @relation(fields: [user_id], references: [id])
+}
+
+model FacultyCourse {
+  faculty_course_id String   @id
+  faculty_id        String?
+  course_id         String
+  Course            Course   @relation(fields: [course_id], references: [course_id])
+  Faculty           Faculty? @relation(fields: [faculty_id], references: [faculty_id])
+}
+
+model Program {
+  program_id   String     @id
+  institute_id String?
+  name         String     @db.VarChar(255)
+  description  String?
+  duration     String?    @db.VarChar(255)
+  level        String?    @db.VarChar(255)
+  created_at   DateTime   @default(now())
+  // Course       Course[] // TODO :- Not clear why we are removing this.
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id], onDelete: Cascade)
+}
+
+model RegisteredUser {
+  registered_user_id String   @id
+  user_id            String
+  registration_date  DateTime @default(now())
+  User               User     @relation(fields: [user_id], references: [id])
+}
+
+model SuperAdminUser {
+  super_admin_user_id String                @id
+  user_id             String
+  special_privileges  String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @default(now())
+  AuditLog            AuditLog[]
+  User                User                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  SystemConfiguration SystemConfiguration[]
+  SystemLog           SystemLog[]
+}
+
+model SystemConfiguration {
+  config_id      String          @id
+  config_key     String          @db.VarChar(255)
+  config_value   String?
+  description    String?
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @default(now())
+  managed_by     String?
+  SuperAdminUser SuperAdminUser? @relation(fields: [managed_by], references: [super_admin_user_id])
+}
+
+model SystemLog {
+  log_id         String         @id
+  log_type       String?        @db.VarChar(50)
+  log_level      String?        @db.VarChar(20)
+  message        String?
+  source         String?        @db.VarChar(255)
+  super_admin_user_id     String
+  timestamp      DateTime       @default(now())
+  user_id        String
+  SuperAdminUser SuperAdminUser @relation(fields: [user_id], references: [super_admin_user_id], onDelete: Cascade)
+}
+
+model UserPermission {
+  permission_id String   @id
+  role_name     String?  @db.VarChar(50)
+  permissions   Json?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+  user_id       String
+  User          User     @relation(fields: [user_id], references: [id])
+}

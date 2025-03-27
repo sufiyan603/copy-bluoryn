@@ -1,0 +1,427 @@
+
+/app/                            # Root app directory
+  /api/                          # API routes directory
+    /v1/   			# Version namespace
+      /institutes/
+        /route.ts                # GET, POST /api/v1/institutes
+        /compare/
+          /route.ts              # GET /api/v1/institutes/compare
+        /[id]/                   # Dynamic route for institute ID
+          /route.ts              # GET /api/v1/institutes/:id
+          /courses/
+            /route.ts            # GET /api/v1/institutes/:id/courses
+          /placements/
+            /route.ts            # GET /api/v1/institutes/:id/placements
+          /faculty/
+            /route.ts            # GET /api/v1/institutes/:id/faculty
+          /infrastructure/
+            /route.ts            # GET /api/v1/institutes/:id/infrastructure
+          /rankings/
+            /route.ts            # GET /api/v1/institutes/:id/rankings
+          /reviews/
+            /route.ts            # GET /api/v1/institutes/:id/reviews
+          /scholarships/
+            /route.ts            # GET /api/v1/institutes/:id/scholarships
+          /departments/
+            /route.ts            # GET /api/v1/institutes/:id/departments
+          /student-clubs/
+            /route.ts            # GET /api/v1/institutes/:id/student-clubs
+          /approval-bodies/
+            /route.ts            # GET /api/v1/institutes/:id/approval-bodies
+
+
+
+
+
+/src/
+ /app/          
+  /api/
+    /v1/
+      /institutes/
+        /route.ts                # General endpoints for institutes (GET, POST)
+        /[id]/
+          /route.ts              # General endpoints for a specific institute (GET, PUT)
+          ..rest all what was there
+      /admin/
+        /institutes/
+          /route.ts              # Admin-specific endpoints (e.g., POST /admin/institutes)
+          /[id]/
+            /route.ts            # Admin-specific actions on institutes (PUT /admin/institutes/:id)
+      /superadmin/
+        /institutes/
+          /route.ts              # Superadmin-specific endpoints (e.g., POST /superadmin/institutes)
+          /[id]/
+            /route.ts            # Superadmin-specific actions on institutes (PUT /superadmin/institutes/:id)
+      
+
+app/
+│
+├── api/
+│   ├── institutes/
+│   │   ├── route.ts               // GET /institutes
+│   │   ├── [id]/
+│   │   │   ├── route.ts           // GET /institutes/:id
+│   │   │   ├── courses/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/courses
+│   │   │   ├── placements/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/placements
+│   │   │   ├── faculty/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/faculty
+│   │   │   ├── infrastructure/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/infrastructure
+│   │   │   ├── rankings/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/rankings
+│   │   │   ├── reviews/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/reviews
+│   │   │   ├── scholarships/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/scholarships
+│   │   │   ├── departments/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/departments
+│   │   │   ├── student-clubs/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/student-clubs
+│   │   │   ├── approval-bodies/
+│   │   │   │   ├── route.ts       // GET /institutes/:id/approval-bodies
+│   │   ├── compare/
+│   │   │   ├── route.ts           // GET /institutes/compare
+│   │
+│   ├── admin/
+│   │   ├── institutes/
+│   │   │   ├── route.ts           // POST /admin/institutes
+│   │   │   ├── bulk-upload/
+│   │   │   │   ├── route.ts       // POST /admin/institutes/bulk-upload
+│   │   │   ├── analytics/
+│   │   │   │   ├── route.ts       // GET /admin/institutes/analytics
+│   │   │   ├── [id]/
+│   │   │   │   ├── route.ts       // PUT /admin/institutes/:id
+│   │   │   │   ├── overview/
+│   │   │   │   │   ├── route.ts   // GET /admin/institutes/:id/overview
+│   │   │   │   ├── metrics/
+│   │   │   │   │   ├── route.ts   // GET /admin/institutes/:id/metrics
+│   │   │   │   ├── compliance/
+│   │   │   │   │   ├── route.ts   // GET /admin/institutes/:id/compliance
+│   │
+│   ├── super-admin/
+│   │   ├── institutes/
+│   │   │   ├── verification/
+│   │   │   │   ├── route.ts       // POST /admin/institutes/verification
+│   │   │   ├── system-status/
+│   │   │   │   ├── route.ts       // PUT /admin/institutes/system-status
+│   │   │   ├── audit-logs/
+│   │   │   │   ├── route.ts       // GET /admin/institutes/audit-logs
+│   │   │   ├── [id]/
+│   │   │   │   ├── route.ts       // DELETE /admin/institutes/:id
+
+
+
+app/
+├── api/
+│   ├── courses/
+│   │   ├── route.ts
+│   │   ├── [id]/
+│   │   │   ├── route.ts
+│   │   │   ├── fees/
+│   │   │   │   ├── route.ts
+│   │   │   ├── placements/
+│   │   │   │   ├── route.ts
+│   │   │   ├── cutoffs/
+│   │   │   │   ├── route.ts
+│   │   │   ├── admission-quota/
+│   │   │   │   ├── route.ts
+
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdmissionQuota {
+  quota_id   String  @id @default(uuid())
+  course_id  String?
+  category   String? @db.VarChar(255)
+  percentage Float?
+  Course     Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model ApprovalBody {
+  approval_body_id String     @id @default(uuid())
+  institute_id     String?
+  name             String     @db.VarChar(255)
+  contact_email    String?    @db.VarChar(255)
+  contact_phone    String?    @db.VarChar(255)
+  Institute        Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Company {
+  company_id    String      @id @default(uuid())
+  company_name  String      @db.VarChar(255)
+  industry      String?     @db.VarChar(255)
+  location      String?     @db.VarChar(255)
+  contact_email String?     @db.VarChar(255)
+  contact_phone String?     @db.VarChar(255)
+  Placement     Placement[]
+}
+
+model Course {
+  course_id      String           @id @default(uuid())
+  institute_id   String?
+  name           String           @db.VarChar(255)
+  description    String?
+  duration       String?          @db.VarChar(255)
+  level          String?          @db.VarChar(255)
+  mode           String?          @db.VarChar(255)
+  specialization String?          @db.VarChar(255)
+  eligibility    String?
+  AdmissionQuota AdmissionQuota[]
+  Institute      Institute?       @relation(fields: [institute_id], references: [institute_id])
+  Cutoff         Cutoff[]
+  Fee            Fee[]
+  Placement      Placement[]
+  Student        Student[]
+}
+
+model Cutoff {
+  cutoff_id    String  @id @default(uuid())
+  course_id    String?
+  exam_name    String? @db.VarChar(255)
+  category     String? @db.VarChar(255)
+  opening_rank Int?
+  closing_rank Int?
+  exam_year    Int?
+  Course       Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model Department {
+  department_id String     @id @default(uuid())
+  institute_id  String?
+  name          String     @db.VarChar(255)
+  head          String?    @db.VarChar(255)
+  Institute     Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Faculty {
+  faculty_id           String                 @id @default(uuid())
+  institute_id         String?
+  name                 String                 @db.VarChar(255)
+  designation          String?                @db.VarChar(255)
+  subject_expertise    String?                @db.VarChar(255)
+  rating               Float?
+  tenure_start         DateTime?
+  tenure_end           DateTime?
+  employment_type      String?                @db.VarChar(255)
+  Institute            Institute?             @relation(fields: [institute_id], references: [institute_id])
+  FacultyPublication   FacultyPublication[]
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model FacultyPublication {
+  publication_id String   @id @default(uuid())
+  faculty_id     String?
+  title          String   @db.VarChar(255)
+  journal        String?  @db.VarChar(255)
+  year           Int?
+  doi            String?  @db.VarChar(255)
+  Faculty        Faculty? @relation(fields: [faculty_id], references: [faculty_id])
+}
+
+model FacultyUser {
+  faculty_id   String     @id @default(uuid())
+  user_id      String?
+  institute_id String?
+  start_year   Int?
+  end_year     Int?
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id])
+  User         User?      @relation(fields: [user_id], references: [user_id])
+}
+
+model Fee {
+  fee_id    String  @id @default(uuid())
+  course_id String?
+  min_fee   Float?
+  max_fee   Float?
+  fee_year  Int?
+  component String? @db.VarChar(255)
+  amount    Float?
+  currency  String? @db.VarChar(10)
+  Course    Course? @relation(fields: [course_id], references: [course_id])
+}
+
+model Infrastructure {
+  infrastructure_id String     @id @default(uuid())
+  institute_id      String?
+  facility          String?    @db.VarChar(255)
+  hostel_type       String?    @db.VarChar(255)
+  hostel_details    String?
+  library_details   String?
+  facility_rating   Float?
+  total_reviews     Int?
+  timings           String?    @db.VarChar(255)
+  Institute         Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Institute {
+  institute_id         String                 @id @default(uuid())
+  institute_name       String                 @db.VarChar(255)
+  about                String?
+  address              String?                @db.VarChar(255)
+  city                 String?                @db.VarChar(255)
+  state                String?                @db.VarChar(255)
+  pincode              String?                @db.VarChar(20)
+  latitude             Float?
+  longitude            Float?
+  establishment_year   Int?
+  institute_type       String?                @db.VarChar(255)
+  campus_size          String?                @db.VarChar(255)
+  student_intake       Int?
+  affiliation          String?                @db.VarChar(255)
+  last_updated_on      DateTime?
+  last_updated_from    String?                @db.VarChar(255)
+  contact_email        String?                @db.VarChar(255)
+  contact_phone        String?                @db.VarChar(255)
+  website              String?                @db.VarChar(255)
+  accreditation        String?                @db.VarChar(255)
+  institution_type     String?                @db.VarChar(255)
+  url                  String?                @db.VarChar(255)
+  ApprovalBody         ApprovalBody[]
+  Course               Course[]
+  Department           Department[]
+  Faculty              Faculty[]
+  FacultyUser          FacultyUser[]
+  Infrastructure       Infrastructure[]
+  Location             Location[]
+  Placement            Placement[]
+  Ranking              Ranking[]
+  Review               Review[]
+  Scholarship          Scholarship[]
+  Student              Student[]
+  StudentClub          StudentClub[]
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model Location {
+  location_id  String     @id @default(uuid())
+  institute_id String?
+  address      String?    @db.VarChar(255)
+  city         String?    @db.VarChar(255)
+  state        String?    @db.VarChar(255)
+  pincode      String?    @db.VarChar(20)
+  latitude     Float?
+  longitude    Float?
+  affiliation  String?    @db.VarChar(255)
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Placement {
+  placement_id                 String                         @id @default(uuid())
+  institute_id                 String?
+  company_id                   String?
+  top_recruiters               String?                        @db.VarChar(255)
+  year                         Int?
+  course_id                    String?
+  placement_rate               Float?
+  offer_status                 String?                        @db.VarChar(255)
+  Company                      Company?                       @relation(fields: [company_id], references: [company_id])
+  Course                       Course?                        @relation(fields: [course_id], references: [course_id])
+  Institute                    Institute?                     @relation(fields: [institute_id], references: [institute_id])
+  PlacementSpecializationStats PlacementSpecializationStats[]
+}
+
+model PlacementSpecializationStats {
+  stat_id         String     @id @default(uuid())
+  placement_id    String?
+  specialization  String?    @db.VarChar(255)
+  average_package Float?
+  median_package  Float?
+  highest_package Float?
+  Placement       Placement? @relation(fields: [placement_id], references: [placement_id])
+}
+
+model Ranking {
+  ranking_id     String     @id @default(uuid())
+  institute_id   String?
+  ranking_body   String?    @db.VarChar(255)
+  ranking_year   Int?
+  institute_rank Int?
+  category       String?    @db.VarChar(255)
+  country        String?    @db.VarChar(255)
+  Institute      Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Review {
+  review_id                String     @id @default(uuid())
+  institute_id             String?
+  overall_rating           Float?
+  verified_reviews         Int?
+  placements_rating        Float?
+  infrastructure_rating    Float?
+  faculty_rating           Float?
+  course_curriculum_rating Float?
+  campus_life_rating       Float?
+  value_for_money_rating   Float?
+  review_text              String?
+  reviewer_name            String?    @db.VarChar(255)
+  reviewer_email           String?    @db.VarChar(255)
+  review_date              DateTime?
+  Institute                Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Scholarship {
+  scholarship_id      String     @id @default(uuid())
+  institute_id        String?
+  name                String     @db.VarChar(255)
+  eligibility         String?
+  amount              Float?
+  deadline            DateTime?
+  application_process String?
+  required_documents  String?
+  Institute           Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model Student {
+  student_id           String                 @id @default(uuid())
+  user_id              String?
+  institute_id         String?
+  course_id            String?
+  enrollment_year      Int?
+  graduation_year      Int?
+  Course               Course?                @relation(fields: [course_id], references: [course_id])
+  Institute            Institute?             @relation(fields: [institute_id], references: [institute_id])
+  User                 User?                  @relation(fields: [user_id], references: [user_id])
+  StudentFacultyRating StudentFacultyRating[]
+}
+
+model StudentClub {
+  club_id         String     @id @default(uuid())
+  institute_id    String?
+  name            String     @db.VarChar(255)
+  description     String?
+  faculty_advisor String?    @db.VarChar(255)
+  members_count   Int?
+  Institute       Institute? @relation(fields: [institute_id], references: [institute_id])
+}
+
+model StudentFacultyRating {
+  rating_id    String     @id @default(uuid())
+  student_id   String?
+  faculty_id   String?
+  institute_id String?
+  rating       Float?
+  rating_date  DateTime?
+  Faculty      Faculty?   @relation(fields: [faculty_id], references: [faculty_id])
+  Institute    Institute? @relation(fields: [institute_id], references: [institute_id])
+  Student      Student?   @relation(fields: [student_id], references: [student_id])
+}
+
+model User {
+  user_id     String        @id @default(uuid())
+  username    String        @db.VarChar(255)
+  email       String        @db.VarChar(255)
+  user_type   String        @db.VarChar(50)
+  status      String?       @db.VarChar(255)
+  FacultyUser FacultyUser[]
+  Student     Student[]
+}
